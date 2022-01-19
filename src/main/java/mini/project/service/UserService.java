@@ -1,5 +1,7 @@
 package mini.project.service;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,17 @@ public class UserService {
 		System.out.println(limit);
 		System.out.println(sort);
 		
+		return new ResponseEntity("test", HttpStatus.OK);
+	}
+
+	public ResponseEntity getUsers(Optional<Double> min, Optional<Double> max, Optional<Integer> offset,
+			Optional<Integer> limit, Optional<String> sort) {
+		// TODO Auto-generated method stub
+		System.out.println(min);
+		System.out.println(max);
+		System.out.println(offset);
+		System.out.println(limit);
+		System.out.println(sort);
 		return new ResponseEntity("test", HttpStatus.OK);
 	}
 
