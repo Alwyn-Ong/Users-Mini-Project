@@ -21,7 +21,7 @@ public class UserController {
 	// To get a list of users based on params
 	@GetMapping("/users")
 	public ResponseEntity getUsers(UserParameters userParameters) {
-		return service.getUsers(userParameters.getMin(), userParameters.getMax(), userParameters.getOffset(), userParameters.getLimit(), userParameters.getSort());
+		return service.getUsers(userParameters);
 	}
 
 }

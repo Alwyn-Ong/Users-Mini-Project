@@ -2,6 +2,8 @@ package mini.project.model;
 
 import java.util.Optional;
 
+import org.springframework.data.jpa.domain.Specification;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -81,6 +83,18 @@ public class UserParameters {
 	public String toString() {
 		return "UserParameters [min=" + min + ", max=" + max + ", offset=" + offset + ", limit=" + limit + ", sort="
 				+ sort + "]";
+	}
+	
+	public Specification<User> withMin() {
+		return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("salary"), this.min.get());
+	}
+
+	public Specification<User> withMax() {
+		return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("salary"), this.max.get());
+	}
+	
+	public Specification<User> getSpecification(){
+		return Specification.where(this.withMax().and(this.withMin()));
 	}
 	
 	
