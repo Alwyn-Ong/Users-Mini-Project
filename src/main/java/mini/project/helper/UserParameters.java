@@ -1,4 +1,4 @@
-package mini.project.model;
+package mini.project.helper;
 
 import java.util.Optional;
 
@@ -6,6 +6,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import mini.project.model.User;
 
 @Data
 @NoArgsConstructor
@@ -14,7 +15,7 @@ public class UserParameters {
 	private Optional<Double> min = Optional.of(0.0);
 	private Optional<Double> max = Optional.of(4000.0);
 	private Optional<Integer> offset = Optional.of(0);
-	private Optional<Integer> limit= Optional.empty();
+	private Optional<Integer> limit= Optional.of(Integer.MAX_VALUE);
 	private Optional<String> sort = Optional.empty();
 	
 	
@@ -93,6 +94,7 @@ public class UserParameters {
 		return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("salary"), this.max.get());
 	}
 	
+		
 	public Specification<User> getSpecification(){
 		return Specification.where(this.withMax().and(this.withMin()));
 	}

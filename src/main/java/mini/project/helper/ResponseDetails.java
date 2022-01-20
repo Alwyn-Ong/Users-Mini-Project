@@ -1,4 +1,4 @@
-package mini.project.model;
+package mini.project.helper;
 
 import java.util.Date;
 

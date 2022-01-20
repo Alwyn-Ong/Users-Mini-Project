@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import mini.project.model.UserParameters;
+import mini.project.helper.UserParameters;
 import mini.project.service.UserService;
 
 @CrossOrigin(origins = "*")

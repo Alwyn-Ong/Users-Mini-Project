@@ -11,7 +11,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import com.fasterxml.jackson.core.JsonParseException;
 
-import mini.project.model.ResponseDetails;
+import mini.project.helper.ResponseDetails;
 
 /**
  * 
