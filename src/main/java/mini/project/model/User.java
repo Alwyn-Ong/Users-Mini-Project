@@ -15,7 +15,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "urls")
+@Table(name = "users")
 @ApiModel(description = "User Storage ")
 public class User {
 	@Id
