@@ -24,7 +24,6 @@ public class UserService {
 		//TODO: input validation
 		
 		Pageable offsetBasePageRequest = new OffsetBasedPageRequest(userParameters.getOffset().get(), userParameters.getLimit().get());
-//		List<User> results = (List<User>) userDao.findAll(userParameters.getSpecification(), offsetBasePageRequest);
 		Page<User> resultsPaged = userDao.findAll(userParameters.getSpecification(), offsetBasePageRequest);
 		List<User> results = resultsPaged.getContent();
 		return new ResponseEntity(results, HttpStatus.OK);
