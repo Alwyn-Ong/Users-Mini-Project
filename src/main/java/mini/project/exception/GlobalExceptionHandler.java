@@ -1,6 +1,8 @@
 package mini.project.exception;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
@@ -31,7 +33,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(APIException.class)
 	public ResponseEntity<?> handleAPIException(APIException e, WebRequest request) {
 
-		ResponseDetails errorDetails = new ResponseDetails(new Date(), e.getMessage(), request.getDescription(false));
+		Map<String, String> errorDetails = new HashMap<>();
+		errorDetails.put("error", e.getMessage());
 		return new ResponseEntity(errorDetails, HttpStatus.BAD_GATEWAY);
 	}
 
@@ -44,8 +47,8 @@ public class GlobalExceptionHandler {
 	 */
 	@ExceptionHandler(ParameterException.class)
 	public ResponseEntity<?> handleAPIException(ParameterException e, WebRequest request) {
-
-		ResponseDetails errorDetails = new ResponseDetails(new Date(), e.getMessage(), request.getDescription(false));
+		Map<String, String> errorDetails = new HashMap<>();
+		errorDetails.put("error", e.getMessage());
 		return new ResponseEntity(errorDetails, HttpStatus.BAD_REQUEST);
 	}
 
@@ -59,11 +62,13 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleGlobalException(Exception e, WebRequest request) {
 
-		ResponseDetails errorDetails = new ResponseDetails(new Date(), e.getMessage(), request.getDescription(false));
-
+		Map<String, String> errorDetails = new HashMap<>();
+		String errorMessage = e.getMessage();
+		errorDetails.put("error", errorMessage);
+		
 		// For invalid JSON inputs
 		if (ExceptionUtils.indexOfType(e, JsonParseException.class) != -1) {
-			errorDetails.setMessage("Invalid JSON input!");
+			errorDetails.put("error", "Invalid JSON input!");
 			return new ResponseEntity(errorDetails, HttpStatus.BAD_REQUEST);
 		}
 
