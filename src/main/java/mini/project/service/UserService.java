@@ -21,9 +21,16 @@ public class UserService {
 	private UserDao userDao;
 
 	public ResponseEntity getUsers(UserParameters userParameters) {
-		//TODO: input validation
-		
-		Pageable offsetBasePageRequest = new OffsetBasedPageRequest(userParameters.getOffset().get(), userParameters.getLimit().get());
+		// TODO: input validation
+		Pageable offsetBasePageRequest;
+		if (userParameters.getSort().isEmpty()) {
+			offsetBasePageRequest = new OffsetBasedPageRequest(userParameters.getOffset().get(),
+					userParameters.getLimit().get());
+		} else {
+			offsetBasePageRequest = new OffsetBasedPageRequest(userParameters.getOffset().get(),
+					userParameters.getLimit().get(), userParameters.getSort().get().toLowerCase());
+		}
+
 		Page<User> resultsPaged = userDao.findAll(userParameters.getSpecification(), offsetBasePageRequest);
 		List<User> results = resultsPaged.getContent();
 		return new ResponseEntity(results, HttpStatus.OK);
