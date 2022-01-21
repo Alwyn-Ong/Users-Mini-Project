@@ -1,6 +1,7 @@
 package mini.project;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,14 @@ class BackendApplicationTests {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+	
+	@Test
+	public void givenRequestPartAndRequestParam_whenPost_thenReturns200OK() throws Exception {
+	    mockMvc.perform(multipart("/requestparam/employee")
+	      .file(A_FILE)
+	      .param("name", "testname"))
+	      .andExpect(status().isOk());
 	}
 
 }
