@@ -1,6 +1,8 @@
 package mini.project.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -8,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import mini.project.dao.UserDao;
 import mini.project.helper.OffsetBasedPageRequest;
@@ -33,6 +36,16 @@ public class UserService {
 
 		Page<User> resultsPaged = userDao.findAll(userParameters.getSpecification(), offsetBasePageRequest);
 		List<User> results = resultsPaged.getContent();
+		return new ResponseEntity(results, HttpStatus.OK);
+	}
+
+	public ResponseEntity uploadUsers(MultipartFile document) {
+		// TODO Auto-generated method stub
+		Map<String, Integer> results = new HashMap<>();
+		boolean isSuccessBool = true;
+		System.out.println(document.toString());
+		int isSuccessInt = isSuccessBool ? 1 : 0;
+		results.put("success", isSuccessInt);
 		return new ResponseEntity(results, HttpStatus.OK);
 	}
 
