@@ -1,2 +1,4 @@
-Name	Salary
-Test	1000
+Name,Salary
+abc,0
+Bob,2
+Carl,3
