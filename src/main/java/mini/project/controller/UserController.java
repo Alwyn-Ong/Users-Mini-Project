@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import mini.project.exception.ParameterException;
 import mini.project.helper.UserParameters;
 import mini.project.service.UserService;
 
@@ -30,6 +31,12 @@ public class UserController {
 	
 	@PostMapping(path="/upload", consumes= {MediaType.MULTIPART_FORM_DATA_VALUE})
 	public ResponseEntity uploadUsers(@RequestPart MultipartFile document) {
+		
+		// Validate file
+		if (document.isEmpty()) {
+			throw new ParameterException("Please select a CSV file to upload");
+		}
+		
 		return service.uploadUsers(document);
 	}
 

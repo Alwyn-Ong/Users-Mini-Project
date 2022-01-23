@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.opencsv.bean.CsvBindByName;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,14 +25,15 @@ public class User {
 	@JsonIgnore
 	private int userId;
 
-	@Column(name = "name")
+	@Column(name = "name", unique = true)
 	@ApiModelProperty(notes = "user's name")
+	@CsvBindByName
 	private String name;
 
 	@Column(name = "salary")
 	@ApiModelProperty(notes = "user's salary")
+	@CsvBindByName
 	private double salary;
-
 
 	public User(String name, double salary) {
 		super();
@@ -39,46 +41,37 @@ public class User {
 		this.salary = salary;
 	}
 
-
 	public User() {
 
 	}
-
 
 	public int getUserId() {
 		return userId;
 	}
 
-
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
-
 
 	public String getName() {
 		return name;
 	}
 
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
 
 	public double getSalary() {
 		return salary;
 	}
 
-
 	public void setSalary(double salary) {
 		this.salary = salary;
 	}
-
 
 	@Override
 	public String toString() {
 		return "User [name=" + name + ", salary=" + salary + "]";
 	}
-	
 
 }

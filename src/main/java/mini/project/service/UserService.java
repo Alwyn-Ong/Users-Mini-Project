@@ -1,5 +1,8 @@
 package mini.project.service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.opencsv.bean.BeanVerifier;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.exceptions.CsvConstraintViolationException;
 
 import mini.project.dao.UserDao;
 import mini.project.helper.OffsetBasedPageRequest;
@@ -39,11 +46,50 @@ public class UserService {
 		return new ResponseEntity(results, HttpStatus.OK);
 	}
 
+	private class UserBeanVerifier implements BeanVerifier<User> {
+
+		@Override
+		public boolean verifyBean(User user) throws CsvConstraintViolationException {
+
+			if (user.getSalary() <= 0) {
+				return false;
+			}
+
+			return true;
+		}
+
+	}
+
 	public ResponseEntity uploadUsers(MultipartFile document) {
 		// TODO Auto-generated method stub
-		Map<String, Integer> results = new HashMap<>();
+		Map<String, Object> results = new HashMap<>();
 		boolean isSuccessBool = true;
-		System.out.println(document.toString());
+
+		// parse CSV file to create a list of `User` objects
+		try (Reader reader = new BufferedReader(new InputStreamReader(document.getInputStream()))) {
+
+			// create csv bean reader
+			List<User> users = new CsvToBeanBuilder(reader).withType(User.class).withIgnoreLeadingWhiteSpace(true)
+					.withVerifier(new UserBeanVerifier()).build().parse();
+
+			// TODO validate extra columns
+			for (User user : users) {
+				User existing = userDao.findByName(user.getName());
+				if (existing != null) {
+					existing.setSalary(user.getSalary());
+					userDao.save(existing);
+				} else {
+					userDao.save(user);
+				}
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			isSuccessBool = false;
+			results.put("error", ex.getMessage());
+		}
+
+//		System.out.println(document.toString());
 		int isSuccessInt = isSuccessBool ? 1 : 0;
 		results.put("success", isSuccessInt);
 		return new ResponseEntity(results, HttpStatus.OK);
