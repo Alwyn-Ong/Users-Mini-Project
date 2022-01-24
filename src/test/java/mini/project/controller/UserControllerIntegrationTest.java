@@ -122,7 +122,7 @@ public class UserControllerIntegrationTest {
 		List<User> users = userDao.findAll();
 		List<User> expectedUsers = users.stream().sorted((user1,user2) -> user1.getName().compareTo(user2.getName())).collect(Collectors.toList());
 		ResultActions actions = mockMvc.perform(get("/users")
-				.param("min", "1")).andExpect(status().isOk())
+				.param("sort", "name")).andExpect(status().isOk())
 				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
 		
 		for (int i = 0; i < expectedUsers.size(); i++) {
