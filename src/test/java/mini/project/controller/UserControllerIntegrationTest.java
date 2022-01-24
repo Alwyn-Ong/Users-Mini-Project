@@ -1,10 +1,14 @@
 package mini.project.controller;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.hamcrest.Matchers;
@@ -16,6 +20,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mini.project.dao.UserDao;
 import mini.project.model.User;
@@ -31,19 +39,31 @@ public class UserControllerIntegrationTest {
 	@Autowired
 	private UserDao userDao;
 
+	private List<User>testUsers = new ArrayList<>();
+	
 	@BeforeEach
 	void setUp() {
 		userDao.deleteAll();
-		userDao.save(new User("Bob", 2000));
-		userDao.save(new User("Carl", 3000));
-		userDao.save(new User("Dan", 4000));
-		userDao.save(new User("Emily", 3500));
-		userDao.save(new User("Alex", 2500));
+		
+		testUsers.add(new User("Bob", 2000));
+		testUsers.add(new User("Carl", 3000));
+		testUsers.add(new User("Dan", 4000));
+		testUsers.add(new User("Emily", 3500));
+		testUsers.add(new User("Alex", 2500));
+		
+		userDao.saveAll(testUsers);
 	}
 
 	@AfterEach
 	void tearDown() {
 		userDao.deleteAll();
+	}
+	
+	private static String generateJsonResponse(List<User> expectedUsers) throws JsonProcessingException {
+		Map<String, List<User>> results = new HashMap<>();
+		results.put("results", expectedUsers);
+		
+		return new ObjectMapper().writeValueAsString(results);
 	}
 
 	@Test
@@ -61,11 +81,17 @@ public class UserControllerIntegrationTest {
 		double min = 2500.0;
 		List<User> expectedUsers = users.stream().filter(user -> user.getSalary() >= min).collect(Collectors.toList());
 		System.out.println("REULSTSSSSSSSS");
-		mockMvc.perform(get("/users").param("min", Double.toString(min))).andExpect(status().isOk())
-				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size()))).andDo(result -> {
-					System.out.println(result);
-				});
-		System.out.println("RESULTSSSSSSSSSSS");
+		String expectedResponse = generateJsonResponse(expectedUsers);
+		ResultActions actions = mockMvc.perform(get("/users")
+				.param("min", Double.toString(min)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
+		
+		for (int i = 0; i < expectedUsers.size(); i++) {
+			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
+			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), is(expectedUsers.get(i).getSalary())));
+		}
+		
 	}
 
 	@Test
