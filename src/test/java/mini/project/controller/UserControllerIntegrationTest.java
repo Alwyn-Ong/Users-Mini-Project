@@ -130,5 +130,19 @@ public class UserControllerIntegrationTest {
 			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), is(expectedUsers.get(i).getSalary())));
 		}
 	}
+	
+	@Test
+	void getUsersWorksThroughAllLayers_withSortSalary() throws Exception {
+		List<User> users = userDao.findAll();
+		List<User> expectedUsers = users.stream().sorted((user1,user2) -> Double.compare(user1.getSalary(),user2.getSalary())).collect(Collectors.toList());
+		ResultActions actions = mockMvc.perform(get("/users")
+				.param("sort", "salary")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
+		
+		for (int i = 0; i < expectedUsers.size(); i++) {
+			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
+			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), is(expectedUsers.get(i).getSalary())));
+		}
+	}
 
 }
