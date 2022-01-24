@@ -69,6 +69,7 @@ public class UserService {
 
 		@Override
 		public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
+			// Column Validation			
 			String[] actualCsvHeaders = reader.peek();
 			String actualHeader, expectedHeader;
 			if (expectedHeadersOrdered.length > actualCsvHeaders.length) {
@@ -125,7 +126,6 @@ public class UserService {
 			results.put("error", ex.getMessage());
 		}
 
-//		System.out.println(document.toString());
 		int isSuccessInt = isSuccessBool ? 1 : 0;
 		results.put("success", isSuccessInt);
 		return new ResponseEntity(results, HttpStatus.OK);
