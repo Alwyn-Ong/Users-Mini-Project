@@ -46,7 +46,9 @@ public class UserService {
 		}
 
 		Page<User> resultsPaged = userDao.findAll(userParameters.getSpecification(), offsetBasePageRequest);
-		List<User> results = resultsPaged.getContent();
+		Map<String, List<User>> results = new HashMap<>();
+		results.put("results", resultsPaged.getContent());
+		
 		return new ResponseEntity(results, HttpStatus.OK);
 	}
 
