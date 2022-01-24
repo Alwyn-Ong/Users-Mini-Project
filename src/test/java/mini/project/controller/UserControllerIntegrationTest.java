@@ -59,13 +59,6 @@ public class UserControllerIntegrationTest {
 		userDao.deleteAll();
 	}
 	
-	private static String generateJsonResponse(List<User> expectedUsers) throws JsonProcessingException {
-		Map<String, List<User>> results = new HashMap<>();
-		results.put("results", expectedUsers);
-		
-		return new ObjectMapper().writeValueAsString(results);
-	}
-
 	@Test
 	void getUsersWorksThroughAllLayers() throws Exception {
 		List<User> expectedUsers = userDao.findAll();
@@ -80,7 +73,6 @@ public class UserControllerIntegrationTest {
 		List<User> users = userDao.findAll();
 		double min = 2500.0;
 		List<User> expectedUsers = users.stream().filter(user -> user.getSalary() >= min).collect(Collectors.toList());
-		System.out.println("REULSTSSSSSSSS");
 		String expectedResponse = generateJsonResponse(expectedUsers);
 		ResultActions actions = mockMvc.perform(get("/users")
 				.param("min", Double.toString(min)))
