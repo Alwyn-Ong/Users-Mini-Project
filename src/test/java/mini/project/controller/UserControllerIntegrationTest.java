@@ -55,7 +55,7 @@ public class UserControllerIntegrationTest {
 		userDao.deleteAll();
 	}
 	
-	private void validateResponse(ResultActions actions, List<User> expectedUsers) throws Exception {
+	public static void validateResponse(ResultActions actions, List<User> expectedUsers) throws Exception {
 		for (int i = 0; i < expectedUsers.size(); i++) {
 			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
 			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), Matchers.closeTo(expectedUsers.get(i).getSalary(), new BigDecimal("0.00")), BigDecimal.class));

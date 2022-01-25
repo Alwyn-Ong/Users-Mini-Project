@@ -1,21 +1,19 @@
 package mini.project.controller;
 
 import static org.hamcrest.core.Is.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.aspectj.lang.annotation.Before;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Spy;
@@ -26,11 +24,9 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import mini.project.dao.UserDao;
 import mini.project.model.User;
@@ -64,8 +60,6 @@ public class UploadIntegrationTest {
 		testUsers.add(new User("Emily", 3500));
 		testUsers.add(new User("Alex", 2500));
 		
-//		userDao.saveAll(testUsers);
-		
 	}
 
 	@AfterEach
@@ -73,26 +67,53 @@ public class UploadIntegrationTest {
 		userDao.deleteAll();
 	}
 	
-	private void validateResponse(ResultActions actions, List<User> expectedUsers) throws Exception {
-		for (int i = 0; i < expectedUsers.size(); i++) {
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), Matchers.closeTo(expectedUsers.get(i).getSalary(), new BigDecimal("0.00")), BigDecimal.class));
-		}
-	}
 	
 	// https://www.baeldung.com/spring-multipart-post-request-test
 	// https://roytuts.com/junit-testing-of-file-upload-and-download-in-spring-rest-controllers/
-	@Test 
+	@Test
+	@DisplayName("Upload CSV with only valid rows")
 	void uploadCsvWorksThroughAllLayers() throws Exception {
 		String fileName = "validData.csv";		
 		is = this.getClass().getClassLoader().getResourceAsStream(fileName);		
 		MockMultipartFile file = new MockMultipartFile("file", fileName, "multipart/form-data", is);
-		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.multipart("/upload").file(file).contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(MockMvcResultMatchers.status().is(200)).andReturn();
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/upload")
+				.file(file)
+				.contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(MockMvcResultMatchers.status().is(200))
+                .andExpect(jsonPath("$.success").value(1));
 		
 		List<User> addedUsers = userDao.findAll();
 		System.out.println(addedUsers);
 		System.out.println(testUsers);
+	}
+	
+	@Test
+	@DisplayName("Upload CSV with valid rows, existing rows and negative rows (criteria 2)")
+	void uploadCsvWorksThroughAllLayers_criteria2() throws Exception {
+		User existingUser = new User("Alex", 2000.00);
+		User newUser = new User("Ben", 3500);
+		User zeroSalaryUser = new User("David", 0.00);
+		
+		List<User> expectedUsers = new ArrayList<>();
+		expectedUsers.add(existingUser);
+		expectedUsers.add(newUser);
+		expectedUsers.add(zeroSalaryUser);
+				
+		userDao.save(existingUser);
+		
+		String fileName = "validData_Crit2.csv";		
+		is = this.getClass().getClassLoader().getResourceAsStream(fileName);		
+		MockMultipartFile file = new MockMultipartFile("file", fileName, "multipart/form-data", is);
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/upload")
+				.file(file)
+				.contentType(MediaType.MULTIPART_FORM_DATA))
+		.andExpect(MockMvcResultMatchers.status().is(200))
+		.andExpect(jsonPath("$.success").value(1));
+		
+		ResultActions actions = mockMvc.perform(get("/users")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
+		existingUser.setSalary(2111.00);
+		UserControllerIntegrationTest.validateResponse(actions, expectedUsers);
 		
 	}
 	
