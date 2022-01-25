@@ -54,25 +54,6 @@ public class UploadIntegrationTest {
 	
 	private InputStream is;
 	 
-	@Before(value = "")
-    public void init() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-        is = controller.getClass().getClassLoader().getResourceAsStream("test.csv");
-        
-		try (InputStreamReader streamReader = new InputStreamReader(is, StandardCharsets.UTF_8);
-				BufferedReader reader = new BufferedReader(streamReader)) {
-
-			String line;
-			while ((line = reader.readLine()) != null) {
-				System.out.println(line);
-			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-    }
-	
 	@BeforeEach
 	void setUp() {
 		userDao.deleteAll();
@@ -85,7 +66,6 @@ public class UploadIntegrationTest {
 		
 //		userDao.saveAll(testUsers);
 		
-		is = controller.getClass().getClassLoader().getResourceAsStream("test.csv");
 	}
 
 	@AfterEach
@@ -104,8 +84,9 @@ public class UploadIntegrationTest {
 	// https://roytuts.com/junit-testing-of-file-upload-and-download-in-spring-rest-controllers/
 	@Test 
 	void uploadCsvWorksThroughAllLayers() throws Exception {
-		MockMultipartFile file = new MockMultipartFile("file", "test.csv", "multipart/form-data", is);
-//		mockMvc.perform(multipart("/upload").file(file)).andExpect(status().isOk());
+		String fileName = "validData.csv";		
+		is = this.getClass().getClassLoader().getResourceAsStream(fileName);		
+		MockMultipartFile file = new MockMultipartFile("file", fileName, "multipart/form-data", is);
 		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.multipart("/upload").file(file).contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(MockMvcResultMatchers.status().is(200)).andReturn();
 		
