@@ -23,10 +23,19 @@ SET time_zone = "+00:00";
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `name`, `salary`) VALUES
-(1, 'Bob', 2000),
-(2, 'Carl', 3000),
-(3, 'Dan', 4000);
+INSERT INTO `users`
+    SELECT t.*
+    from (
+        (SELECT 1 as user_id, 'Bob' as name, 2000.00 as salary)
+        UNION ALL (SELECT 2, 'Carl', 3000.20)
+        UNION ALL (SELECT 3, 'Dan', 4000.30)
+        UNION ALL (SELECT 4, 'Alex', 3500.40)
+        UNION ALL (SELECT 5, 'Emily', 2500.50)
+        UNION ALL (SELECT 6, 'Fabian', 2920.00)
+    ) t
+    WHERE NOT EXISTS (SELECT * FROM `users`);
+
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
