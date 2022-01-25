@@ -97,7 +97,8 @@ public class UserService {
 	public ResponseEntity uploadUsers(MultipartFile document) {
 		// TODO Auto-generated method stub
 		Map<String, Object> results = new HashMap<>();
-		boolean isSuccessBool = true;
+		int isSuccessInt = 1;
+		HttpStatus returnStatus = HttpStatus.OK;
 
 		// parse CSV file to create a list of `User` objects
 		try (Reader reader = new BufferedReader(new InputStreamReader(document.getInputStream()))) {
@@ -125,14 +126,20 @@ public class UserService {
 			}
 
 		} catch (Exception ex) {
+			if (ex.getCause() instanceof CsvRequiredFieldEmptyException) {
+				// Error parsing csv file
+				returnStatus = HttpStatus.BAD_REQUEST;
+			} else {
+				returnStatus = HttpStatus.BAD_GATEWAY;
+			}
+			
 			ex.printStackTrace();
-			isSuccessBool = false;
+			isSuccessInt = 0;
 			results.put("error", ex.getMessage());
 		}
 
-		int isSuccessInt = isSuccessBool ? 1 : 0;
 		results.put("success", isSuccessInt);
-		return new ResponseEntity(results, HttpStatus.OK);
+		return new ResponseEntity(results, returnStatus);
 	}
 
 }

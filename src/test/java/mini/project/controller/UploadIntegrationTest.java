@@ -117,6 +117,19 @@ public class UploadIntegrationTest {
 		
 	}
 	
+	@Test
+	@DisplayName("Upload CSV with valid rows and a row with extra column")
+	void uploadInvalidCsvShouldNotWork_extraCol() throws Exception {
+		String fileName = "invalidData_extraCol.csv";		
+		is = this.getClass().getClassLoader().getResourceAsStream(fileName);		
+		MockMultipartFile file = new MockMultipartFile("file", fileName, "multipart/form-data", is);
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/upload")
+				.file(file)
+				.contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(0));
+	}
+	
 
 }
 
