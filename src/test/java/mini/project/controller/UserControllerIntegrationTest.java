@@ -55,46 +55,43 @@ public class UserControllerIntegrationTest {
 		userDao.deleteAll();
 	}
 	
+	private void validateResponse(ResultActions actions, List<User> expectedUsers) throws Exception {
+		for (int i = 0; i < expectedUsers.size(); i++) {
+			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
+			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), Matchers.closeTo(expectedUsers.get(i).getSalary(), new BigDecimal("0.00")), BigDecimal.class));
+		}
+	}
+	
 	@Test
 	void getUsersWorksThroughAllLayers() throws Exception {
 		List<User> expectedUsers = userDao.findAll();
-		mockMvc.perform(get("/users")).andExpect(status().isOk())
-				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size()))).andDo(result -> {
-
-				});
+		ResultActions actions = mockMvc.perform(get("/users")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
+		validateResponse(actions, expectedUsers);
 	}
 
 	@Test
 	void getUsersWorksThroughAllLayers_withMin() throws Exception {
 		List<User> users = userDao.findAll();
 		double min = 2500.0;
-		List<User> expectedUsers = users.stream().filter(user -> user.getSalary() >= min).collect(Collectors.toList());
+		List<User> expectedUsers = users.stream().filter(user -> user.getSalary().compareTo(new BigDecimal(min)) >= 0).collect(Collectors.toList());
 		ResultActions actions = mockMvc.perform(get("/users")
 				.param("min", Double.toString(min)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
-		
-		for (int i = 0; i < expectedUsers.size(); i++) {
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), is(expectedUsers.get(i).getSalary())));
-		}
-		
+		validateResponse(actions, expectedUsers);		
 	}
 
 	@Test
 	void getUsersWorksThroughAllLayers_withMax() throws Exception {
 		List<User> users = userDao.findAll();
 		double max = 3500.0;
-		List<User> expectedUsers = users.stream().filter(user -> user.getSalary() <= max).collect(Collectors.toList());
+		List<User> expectedUsers = users.stream().filter(user -> user.getSalary().compareTo(new BigDecimal(max)) <= 0).collect(Collectors.toList());
 		ResultActions actions = mockMvc.perform(get("/users")
 				.param("max", Double.toString(max)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
-		
-		for (int i = 0; i < expectedUsers.size(); i++) {
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), is(expectedUsers.get(i).getSalary())));
-		}
+		validateResponse(actions, expectedUsers);
 		
 	}
 
@@ -106,11 +103,7 @@ public class UserControllerIntegrationTest {
 		ResultActions actions = mockMvc.perform(get("/users").param("limit", Integer.toString(limit)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
-		
-		for (int i = 0; i < expectedUsers.size(); i++) {
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), is(expectedUsers.get(i).getSalary())));
-		}
+		validateResponse(actions, expectedUsers);
 	}
 
 	@Test
@@ -120,27 +113,17 @@ public class UserControllerIntegrationTest {
 		ResultActions actions = mockMvc.perform(get("/users")
 				.param("sort", "name")).andExpect(status().isOk())
 				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
-		
-		for (int i = 0; i < expectedUsers.size(); i++) {
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), is(expectedUsers.get(i).getSalary())));
-		}
+		validateResponse(actions, expectedUsers);
 	}
 	
 	@Test
 	void getUsersWorksThroughAllLayers_withSortSalary() throws Exception {
 		List<User> users = userDao.findAll();
-		List<User> expectedUsers = users.stream().sorted((user1,user2) -> Double.compare(user1.getSalary(),user2.getSalary())).collect(Collectors.toList());
 		List<User> expectedUsers = users.stream().sorted((user1,user2) -> user1.getSalary().compareTo(user2.getSalary())).collect(Collectors.toList());
-		System.out.println("Expected users is ");
-		System.out.println(expectedUsers);
 		ResultActions actions = mockMvc.perform(get("/users")
 				.param("sort", "salary")).andExpect(status().isOk())
 				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
-		for (int i = 0; i < expectedUsers.size(); i++) {
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), Matchers.closeTo(expectedUsers.get(i).getSalary(), new BigDecimal("0.00")), BigDecimal.class));
-		}
+		validateResponse(actions, expectedUsers);
 	}
 	
 	@Test
