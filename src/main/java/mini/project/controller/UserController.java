@@ -30,14 +30,14 @@ public class UserController {
 	}
 	
 	@PostMapping(path="/upload", consumes= {MediaType.MULTIPART_FORM_DATA_VALUE})
-	public ResponseEntity uploadUsers(@RequestPart MultipartFile document) {
+	public ResponseEntity uploadUsers(@RequestPart MultipartFile file) {
 		
 		// Validate file
-		if (document.isEmpty()) {
+		if (file.isEmpty()) {
 			throw new ParameterException("Please select a CSV file to upload");
 		}
 		
-		return service.uploadUsers(document);
+		return service.uploadUsers(file);
 	}
 
 }
