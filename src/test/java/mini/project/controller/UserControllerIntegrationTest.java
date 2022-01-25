@@ -139,5 +139,12 @@ public class UserControllerIntegrationTest {
 			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), is(expectedUsers.get(i).getSalary())));
 		}
 	}
+	
+	@Test
+	void getUsersDoesNotWork_withInvalidSort() throws Exception {
+		mockMvc.perform(get("/users")
+				.param("sort", "invalid_sort"))
+				.andExpect(status().isBadRequest());
+	}
 
 }
