@@ -1,5 +1,8 @@
 package mini.project.model;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,12 +33,12 @@ public class User {
 	@CsvBindByName
 	private String name;
 
-	@Column(name = "salary")
+	@Column(name = "salary", precision=8, scale=2)
 	@ApiModelProperty(notes = "user's salary")
 	@CsvBindByName
-	private double salary;
+	private BigDecimal salary;
 
-	public User(String name, double salary) {
+	public User(String name, BigDecimal salary) {
 		super();
 		this.name = name;
 		this.salary = salary;
@@ -43,6 +46,12 @@ public class User {
 
 	public User() {
 
+	}
+	
+	public User(String name, double salary) {
+		super();
+		this.name = name;
+		this.salary = new BigDecimal(salary).setScale(2, RoundingMode.HALF_UP);
 	}
 
 	public int getUserId() {
@@ -61,12 +70,16 @@ public class User {
 		this.name = name;
 	}
 
-	public double getSalary() {
+	public BigDecimal getSalary() {
 		return salary;
 	}
 
-	public void setSalary(double salary) {
+	public void setSalary(BigDecimal salary) {
 		this.salary = salary;
+	}
+	
+	public void setSalary(double salary) {
+		this.salary = new BigDecimal(salary).setScale(2, RoundingMode.HALF_UP);
 	}
 
 	@Override

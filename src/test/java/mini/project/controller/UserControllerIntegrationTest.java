@@ -1,10 +1,11 @@
 package mini.project.controller;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.Is.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +41,7 @@ public class UserControllerIntegrationTest {
 	void setUp() {
 		userDao.deleteAll();
 		
-		testUsers.add(new User("Bob", 2000));
+		testUsers.add(new User("Bob", 2000.01));
 		testUsers.add(new User("Carl", 3000));
 		testUsers.add(new User("Dan", 4000));
 		testUsers.add(new User("Emily", 3500));
@@ -130,13 +131,15 @@ public class UserControllerIntegrationTest {
 	void getUsersWorksThroughAllLayers_withSortSalary() throws Exception {
 		List<User> users = userDao.findAll();
 		List<User> expectedUsers = users.stream().sorted((user1,user2) -> Double.compare(user1.getSalary(),user2.getSalary())).collect(Collectors.toList());
+		List<User> expectedUsers = users.stream().sorted((user1,user2) -> user1.getSalary().compareTo(user2.getSalary())).collect(Collectors.toList());
+		System.out.println("Expected users is ");
+		System.out.println(expectedUsers);
 		ResultActions actions = mockMvc.perform(get("/users")
 				.param("sort", "salary")).andExpect(status().isOk())
 				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
-		
 		for (int i = 0; i < expectedUsers.size(); i++) {
 			actions = actions.andExpect(jsonPath(String.format("$.results[%s].name",i), is(expectedUsers.get(i).getName())));
-			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), is(expectedUsers.get(i).getSalary())));
+			actions = actions.andExpect(jsonPath(String.format("$.results[%s].salary",i), Matchers.closeTo(expectedUsers.get(i).getSalary(), new BigDecimal("0.00")), BigDecimal.class));
 		}
 	}
 	

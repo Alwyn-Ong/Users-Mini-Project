@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,8 @@ public class UserService {
 		@Override
 		public boolean verifyBean(User user) throws CsvConstraintViolationException {
 
-			if (user.getSalary() <= 0) {
+			if (user.getSalary().compareTo(new BigDecimal("0.00")) == -1) {
+				// User salary is less than 0.00
 				return false;
 			}
 
