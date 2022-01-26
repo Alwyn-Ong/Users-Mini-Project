@@ -1,8 +1,8 @@
 # Salary Backend Project
 
 ## Prerequisites
-Java - To compile and run app
-MySQL - via Tools like WAMP or MAMP
+- Java
+- MySQL - via Tools like WAMP or MAMP
 
 Change your database credentials accordingly in the following files:
 1. `/src/main/resources/application.properties`
@@ -41,6 +41,6 @@ This is a simple UI that displays and allows for interaction with the endpoints.
 - The database is bootstrapped with data from `data.sql`, under `resources`
 - The CSV files used for testing can be found in `test/resources`
 - The acceptance criteria have been tested in the follow files:
-1. Criteria 1 - `UserControllerIntegrationTest`
-2. Criteria 2 - `UploadIntegrationTest`
-  - Use `mvnw test` to run tests.
+   - Criteria 1 - `UserControllerIntegrationTest`
+   - Criteria 2, 3 - `UploadIntegrationTest`
+   - Use `mvnw test` to run tests.
