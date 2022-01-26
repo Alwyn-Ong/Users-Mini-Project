@@ -37,7 +37,6 @@ public class UserService {
 	private UserDao userDao;
 
 	public ResponseEntity getUsers(UserParameters userParameters) {
-		// TODO: input validation
 		Pageable offsetBasePageRequest;
 		if (userParameters.getSort().isEmpty()) {
 			offsetBasePageRequest = new OffsetBasedPageRequest(userParameters.getOffset().get(),
@@ -50,7 +49,7 @@ public class UserService {
 		Page<User> resultsPaged = userDao.findAll(userParameters.getSpecification(), offsetBasePageRequest);
 		Map<String, List<User>> results = new HashMap<>();
 		results.put("results", resultsPaged.getContent());
-		
+
 		return new ResponseEntity(results, HttpStatus.OK);
 	}
 
@@ -74,7 +73,7 @@ public class UserService {
 
 		@Override
 		public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
-			// Column Validation			
+			// Column Validation
 			String[] actualCsvHeaders = reader.peek();
 			String actualHeader, expectedHeader;
 			if (expectedHeadersOrdered.length > actualCsvHeaders.length) {
@@ -96,7 +95,6 @@ public class UserService {
 	}
 
 	public ResponseEntity uploadUsers(MultipartFile document) {
-		// TODO Auto-generated method stub
 		Map<String, Object> results = new HashMap<>();
 		int isSuccessInt = 1;
 		HttpStatus returnStatus = HttpStatus.OK;
@@ -115,7 +113,6 @@ public class UserService {
 					.build()
 					.parse();
 
-			// TODO validate extra columns
 			for (User user : users) {
 				User existing = userDao.findByName(user.getName());
 				if (existing != null) {
@@ -133,8 +130,7 @@ public class UserService {
 			} else {
 				returnStatus = HttpStatus.BAD_GATEWAY;
 			}
-			
-			ex.printStackTrace();
+
 			isSuccessInt = 0;
 			results.put("error", ex.getMessage());
 		}
