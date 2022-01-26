@@ -22,6 +22,7 @@ import com.opencsv.bean.BeanVerifier;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.opencsv.exceptions.CsvConstraintViolationException;
+import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import mini.project.dao.UserDao;
@@ -126,7 +127,7 @@ public class UserService {
 			}
 
 		} catch (Exception ex) {
-			if (ex.getCause() instanceof CsvRequiredFieldEmptyException) {
+			if (ex.getCause() instanceof CsvException) {
 				// Error parsing csv file
 				returnStatus = HttpStatus.BAD_REQUEST;
 			} else {

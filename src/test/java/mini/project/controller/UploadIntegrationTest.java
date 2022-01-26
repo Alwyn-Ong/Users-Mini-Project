@@ -130,6 +130,32 @@ public class UploadIntegrationTest {
                 .andExpect(jsonPath("$.success").value(0));
 	}
 	
+	@Test
+	@DisplayName("Upload CSV with valid rows and a row with missing column")
+	void uploadInvalidCsvShouldNotWork_missingCol() throws Exception {
+		String fileName = "invalidData_missingCol.csv";		
+		is = this.getClass().getClassLoader().getResourceAsStream(fileName);		
+		MockMultipartFile file = new MockMultipartFile("file", fileName, "multipart/form-data", is);
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/upload")
+				.file(file)
+				.contentType(MediaType.MULTIPART_FORM_DATA))
+		.andExpect(MockMvcResultMatchers.status().isBadRequest())
+		.andExpect(jsonPath("$.success").value(0));
+	}
+	
+	@Test
+	@DisplayName("Upload CSV with valid rows and a row with salary as a string")
+	void uploadInvalidCsvShouldNotWork_stringSalary() throws Exception {
+		String fileName = "invalidData_stringSalary.csv";		
+		is = this.getClass().getClassLoader().getResourceAsStream(fileName);		
+		MockMultipartFile file = new MockMultipartFile("file", fileName, "multipart/form-data", is);
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/upload")
+				.file(file)
+				.contentType(MediaType.MULTIPART_FORM_DATA))
+		.andExpect(MockMvcResultMatchers.status().isBadRequest())
+		.andExpect(jsonPath("$.success").value(0));
+	}
+	
 
 }
 
