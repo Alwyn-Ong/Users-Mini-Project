@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -63,6 +64,7 @@ public class UserControllerIntegrationTest {
 	}
 	
 	@Test
+	@DisplayName("Get users, without any parameters (Criteria 1)")
 	void getUsersWorksThroughAllLayers() throws Exception {
 		List<User> expectedUsers = userDao.findAll();
 		ResultActions actions = mockMvc.perform(get("/users")).andExpect(status().isOk())
@@ -71,6 +73,7 @@ public class UserControllerIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("Get users, with minimum param (Criteria 1.1)")
 	void getUsersWorksThroughAllLayers_withMin() throws Exception {
 		List<User> users = userDao.findAll();
 		double min = 2500.0;
@@ -83,6 +86,7 @@ public class UserControllerIntegrationTest {
 	}
 
 	@Test
+	@DisplayName("Get users, with max param (Criteria 1.1)")
 	void getUsersWorksThroughAllLayers_withMax() throws Exception {
 		List<User> users = userDao.findAll();
 		double max = 3500.0;
@@ -92,21 +96,10 @@ public class UserControllerIntegrationTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
 		validateResponse(actions, expectedUsers);
-		
 	}
 
 	@Test
-	void getUsersWorksThroughAllLayers_withLimit() throws Exception {
-		List<User> users = userDao.findAll();
-		int limit = 1;
-		List<User> expectedUsers = users.subList(0, limit);
-		ResultActions actions = mockMvc.perform(get("/users").param("limit", Integer.toString(limit)))
-				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
-		validateResponse(actions, expectedUsers);
-	}
-
-	@Test
+	@DisplayName("Get users, with order param, sorted by name (Criteria 1.2)")
 	void getUsersWorksThroughAllLayers_withSortName() throws Exception {
 		List<User> users = userDao.findAll();
 		List<User> expectedUsers = users.stream().sorted((user1,user2) -> user1.getName().compareTo(user2.getName())).collect(Collectors.toList());
@@ -117,6 +110,7 @@ public class UserControllerIntegrationTest {
 	}
 	
 	@Test
+	@DisplayName("Get users, with order param, sorted by salary (Criteria 1.2)")
 	void getUsersWorksThroughAllLayers_withSortSalary() throws Exception {
 		List<User> users = userDao.findAll();
 		List<User> expectedUsers = users.stream().sorted((user1,user2) -> user1.getSalary().compareTo(user2.getSalary())).collect(Collectors.toList());
@@ -127,6 +121,31 @@ public class UserControllerIntegrationTest {
 	}
 	
 	@Test
+	@DisplayName("Get users, with offset param (Criteria 1.3)")
+	void getUsersWorksThroughAllLayers_withOffset() throws Exception {
+		List<User> users = userDao.findAll();
+		int offset = 1;
+		List<User> expectedUsers = users.subList(offset, users.size());
+		ResultActions actions = mockMvc.perform(get("/users").param("offset", Integer.toString(offset)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
+		validateResponse(actions, expectedUsers);
+	}
+	
+	@Test
+	@DisplayName("Get users, with limit param (Criteria 1.3)")
+	void getUsersWorksThroughAllLayers_withLimit() throws Exception {
+		List<User> users = userDao.findAll();
+		int limit = 1;
+		List<User> expectedUsers = users.subList(0, limit);
+		ResultActions actions = mockMvc.perform(get("/users").param("limit", Integer.toString(limit)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.results", Matchers.hasSize(expectedUsers.size())));
+		validateResponse(actions, expectedUsers);
+	}
+	
+	@Test
+	@DisplayName("Get users, with invalid sort param")
 	void getUsersDoesNotWork_withInvalidSort() throws Exception {
 		mockMvc.perform(get("/users")
 				.param("sort", "invalid_sort"))

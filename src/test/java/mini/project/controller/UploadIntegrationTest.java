@@ -66,8 +66,6 @@ public class UploadIntegrationTest {
 	}
 	
 	
-	// https://www.baeldung.com/spring-multipart-post-request-test
-	// https://roytuts.com/junit-testing-of-file-upload-and-download-in-spring-rest-controllers/
 	@Test
 	@DisplayName("Upload CSV with only valid rows")
 	void uploadCsvWorksThroughAllLayers() throws Exception {
