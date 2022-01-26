@@ -32,10 +32,15 @@ mvnw spring-boot:run
 
 
 ## Swagger UI
+This is a simple UI that displays and allows for interaction with the endpoints. <br>
 Once deployed, you can head over to `/swagger-ui/` to access [Swagger UI](https://swagger.io/tools/swagger-ui/)
 - For example, if deployed in localhost, the url would be http://localhost:8080/swagger-ui/
+- `user-controller` -> endpoint, e.g. `/users/` -> Try it out button (on the right) to try out the apis and see their responses.
 
-This is a simple UI that displays and allows for interaction with the endpoints.
+
+Note:
+- The API actually returns the salaries in 2 decimal places, but is rendered without it in the UI. 
+- You can also view the response via the curl command generated
 
 ## Note
 - The database is bootstrapped with data from `data.sql`, under `resources`
